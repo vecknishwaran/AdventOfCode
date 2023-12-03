@@ -13,15 +13,20 @@ func main() {
 		panic(err)
 	}
 	defer file.Close()
-	var sum int
+	var part1Sum int
+	var part2Sum int
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		texts := strings.Split(strings.ReplaceAll(scanner.Text(), " ", ""), ":")
+
 		if IsPossible(texts[1]) {
-			sum += getGameNumber(texts[0])
+			part1Sum += getGameNumber(texts[0])
 		}
+
+		part2Sum += GetPower(texts[1])
 	}
-	println(sum)
+	println("Part 1: ", part1Sum)
+	println("Part 2: ", part2Sum)
 
 }
 
@@ -29,11 +34,6 @@ var bag = map[string]int{
 	"red":   12,
 	"green": 13,
 	"blue":  14,
-}
-
-func CheckPossibility(text string) int {
-
-	return 0
 }
 
 func getGameNumber(text string) int {
@@ -70,6 +70,29 @@ func IsPossible(text string) bool {
 	return true
 }
 
+func GetPower(text string) int {
+	set := strings.Split(text, ";")
+	maxRed := 0
+	maxGreen := 0
+	maxBlue := 0
+	for _, colors := range set {
+		color := strings.Split(colors, ",")
+		for _, c := range color {
+			switch {
+			case strings.Contains(c, "red"):
+				maxRed = getMax(c, "red", maxRed)
+			case strings.Contains(c, "green"):
+				maxGreen = getMax(c, "green", maxGreen)
+			case strings.Contains(c, "blue"):
+				maxBlue = getMax(c, "blue", maxBlue)
+			}
+		}
+
+	}
+
+	return maxRed * maxGreen * maxBlue
+}
+
 func isMore(text, color string, limit int) bool {
 	num := strings.Split(text, color)[0]
 	i, err := strconv.Atoi(num)
@@ -80,4 +103,16 @@ func isMore(text, color string, limit int) bool {
 		return false
 	}
 	return true
+}
+
+func getMax(text, color string, max int) int {
+	num := strings.Split(text, color)[0]
+	i, err := strconv.Atoi(num)
+	if err != nil {
+		panic(err)
+	}
+	if i > max {
+		return i
+	}
+	return max
 }
